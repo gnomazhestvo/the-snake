@@ -62,7 +62,7 @@ class GameObject():
         self.body_color = body_color
         self.position = ZERO_POSITION
 
-    def draw_object(self):
+    def draw(self):
         """Отрисовывает объект, определяется в дочерних классах."""
 
     def draw_cell(self, coordinates, cell_color):
@@ -118,7 +118,7 @@ class Apple(GameObject):
             if self.position not in snake_positions:
                 return self.position
 
-    def draw_object(self) -> None:
+    def draw(self) -> None:
         """Отрисовывает яблоко на экране в позиции position."""
         self.draw_cell(self.position, self.body_color)
 
@@ -183,7 +183,7 @@ class Snake(GameObject):
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
 
-    def draw_object(self) -> None:
+    def draw(self) -> None:
         """Отрисовка змейки."""
         # Цикл, рисующий единичную клетку для каждого элемента списка сегментов
         # змейки, кроме головы змейки:
@@ -253,8 +253,8 @@ def main():
             apple.randomize_position(snake.positions)
 
         # Отрисовка объектов:
-        snake.draw_object()
-        apple.draw_object()
+        snake.draw()
+        apple.draw()
         pygame.display.update()
         clock.tick(SPEED)
 
