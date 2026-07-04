@@ -153,7 +153,7 @@ class Snake(GameObject):
         self.last = None
 
     @property
-    def head_position(self) -> tuple[int, int]:
+    def get_head_position(self) -> tuple[int, int]:
         """Возвращает координаты головы змейки."""
         return self.positions[0]
 
@@ -173,13 +173,13 @@ class Snake(GameObject):
         dx *= GRID_SIZE
         dy *= GRID_SIZE
         # Новые координаты головы:
-        head_x, head_y = self.head_position
+        head_x, head_y = self.get_head_position
         new_head_x = (head_x + dx) % SCREEN_WIDTH
         new_head_y = (head_y + dy) % SCREEN_HEIGHT
-        self.new_head_position = (new_head_x, new_head_y)
+        self.new_get_head_position = (new_head_x, new_head_y)
         # Добавление головы с новыми координатами и исключение последнего
         # сегмента тела змейки:
-        self.positions.insert(0, self.new_head_position)
+        self.positions.insert(0, self.new_get_head_position)
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
 
@@ -191,7 +191,7 @@ class Snake(GameObject):
             self.draw_cell(position, self.body_color)
 
         # Отрисовка головы змейки:
-        self.draw_cell(self.head_position, self.body_color)
+        self.draw_cell(self.get_head_position, self.body_color)
 
         # Затирание последнего сегмента:
         if self.last:
@@ -244,11 +244,11 @@ def main():
         snake.move()
 
         # Проверка съедения яблока:
-        if apple.position == snake.head_position:
+        if apple.position == snake.get_head_position:
             snake.length += 1
             apple.randomize_position(snake.positions)
         # Проверка съедения себя:
-        if snake.head_position in snake.positions[1:]:
+        if snake.get_head_position in snake.positions[1:]:
             snake.reset()
             apple.randomize_position(snake.positions)
 
