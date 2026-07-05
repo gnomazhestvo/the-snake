@@ -242,7 +242,7 @@ def main():
     apple = Apple(APPLE_COLOR)
     snake = Snake(SNAKE_COLOR)
     screen.fill(BOARD_BACKGROUND_COLOR)
-    
+
     while True:
         handle_keys(snake)
         snake.update_direction()
