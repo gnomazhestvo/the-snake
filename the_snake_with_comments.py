@@ -36,9 +36,7 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-# Словарь для кнопок, отвечающих за направление движения. В значениях
-# словаря кортеж следующего и "запрещенного" направления - в которое змейка
-# не может направиться из текущего направления.
+# Словарь клавиш для управления движением:
 DIRECT_KEYS = {
     pygame.K_UP: (UP, DOWN),
     pygame.K_DOWN: (DOWN, UP),
@@ -179,19 +177,19 @@ class Snake(GameObject):
         """Отвечает за движение змейки.
 
         Метод обновляет координаты головы змейки в рамках игрового пространства
-        в зависимости от направления движения direction. "Движение" заключается
-        в добавлении в список сегментов змейки головы с новыми координатами
-        и исключения из списка сегментов змейки последнего сегмента тела.
+        в зависимости от направления движения direction.
         """
+        # Приращение координат в зависимости от направления:
         dx, dy = self.direction
         dx *= GRID_SIZE
         dy *= GRID_SIZE
-
+        # Новые координаты головы:
         head_x, head_y = self.head_position
         new_head_x = (head_x + dx) % SCREEN_WIDTH
         new_head_y = (head_y + dy) % SCREEN_HEIGHT
         self.new_head_position = (new_head_x, new_head_y)
-
+        # Добавление головы с новыми координатами и исключение последнего
+        # сегмента тела змейки:
         self.positions.insert(0, self.new_head_position)
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
@@ -199,11 +197,15 @@ class Snake(GameObject):
 
     def draw(self) -> None:
         """Отрисовка змейки."""
+        # Цикл, рисующий единичную клетку для каждого элемента списка сегментов
+        # змейки, кроме головы змейки:
         for position in self.positions[1:]:
             self.draw_cell(position, self.body_color)
 
+        # Отрисовка головы змейки:
         self.draw_cell(self.head_position, self.body_color)
 
+        # Затирание последнего сегмента:
         if self.last:
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
@@ -219,6 +221,9 @@ class Snake(GameObject):
 
 def handle_keys(game_object):
     """Обрабатывает действия пользователя."""
+    # Словарь для кнопок, отвечающих за направление движения. В значениях
+    # словаря кортеж следующего и "запрещенного" направления - в которое змейка
+    # не может передвинуться из текущего направления.
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -237,7 +242,7 @@ def main():
     apple = Apple(APPLE_COLOR)
     snake = Snake(SNAKE_COLOR)
     screen.fill(BOARD_BACKGROUND_COLOR)
-
+    
     while True:
         handle_keys(snake)
         snake.update_direction()
@@ -253,6 +258,7 @@ def main():
             apple.randomize_position(snake.positions)
             screen.fill(BOARD_BACKGROUND_COLOR)
 
+        # Отрисовка объектов:
         snake.draw()
         apple.draw()
         pygame.display.update()
