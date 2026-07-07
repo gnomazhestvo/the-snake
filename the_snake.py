@@ -39,7 +39,7 @@ RIGHT = (1, 0)
 # Словарь для кнопок, отвечающих за направление движения. В значениях
 # словаря кортеж следующего и "запрещенного" направления - в которое змейка
 # не может направиться из текущего направления.
-DIRECT_KEYS = {
+DIRECTION_KEYS = {
     pygame.K_UP: (UP, DOWN),
     pygame.K_DOWN: (DOWN, UP),
     pygame.K_LEFT: (LEFT, RIGHT),
@@ -167,11 +167,10 @@ class Snake(GameObject):
 
     def get_head_position(self) -> tuple[int, int]:
         """Возвращает координаты головы змейки."""
-        self.head_position = self.positions[0]
-        return self.head_position
+        return self.positions[0]
 
     def update_direction(self) -> None:
-        """Обновляет направление движения змейки после нажатия на клавишу."""
+        """Обновляет направление движения змейки."""
         if self.next_direction:
             self.direction = self.next_direction
 
@@ -187,22 +186,23 @@ class Snake(GameObject):
         dx *= GRID_SIZE
         dy *= GRID_SIZE
 
-        head_x, head_y = self.head_position
+        head_x, head_y = self.get_head_position()
+
         new_head_x = (head_x + dx) % SCREEN_WIDTH
         new_head_y = (head_y + dy) % SCREEN_HEIGHT
-        self.new_head_position = (new_head_x, new_head_y)
+        new_head_position = (new_head_x, new_head_y)
 
-        self.positions.insert(0, self.new_head_position)
+        self.positions.insert(0, new_head_position)
+
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
-        self.head_position = self.new_head_position
 
     def draw(self) -> None:
         """Отрисовка змейки."""
         for position in self.positions[1:]:
             self.draw_cell(position, self.body_color)
 
-        self.draw_cell(self.head_position, self.body_color)
+        self.draw_cell(self.get_head_position(), self.body_color)
 
         if self.last:
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
@@ -214,7 +214,6 @@ class Snake(GameObject):
         self.length = 1
         self.positions = [(ZERO_POSITION)]
         self.direction = choice((LEFT, RIGHT, UP, DOWN))
-        self.head_position = (ZERO_POSITION)
 
 
 def handle_keys(game_object):
@@ -225,9 +224,11 @@ def handle_keys(game_object):
             raise SystemExit
 
         if event.type == pygame.KEYDOWN:
-            next_dir, prohibited = DIRECT_KEYS.get(event.key, (None, None))
-            if game_object.direction != prohibited:
-                game_object.next_direction = next_dir
+            next_direction, prohibited_direction = DIRECTION_KEYS.get(
+                event.key, (game_object.direction, game_object.direction)
+            )
+            if game_object.direction != prohibited_direction:
+                game_object.next_direction = next_direction
 
 
 def main():
@@ -243,12 +244,11 @@ def main():
         snake.update_direction()
         snake.move()
 
-        # Проверка съедения яблока:
-        if apple.position == snake.head_position:
+        snake_head_position = snake.get_head_position()
+        if apple.position == snake_head_position:
             snake.length += 1
             apple.randomize_position(snake.positions)
-        # Проверка съедения себя:
-        if snake.head_position in snake.positions[1:]:
+        if snake_head_position in snake.positions[1:]:
             snake.reset()
             apple.randomize_position(snake.positions)
             screen.fill(BOARD_BACKGROUND_COLOR)
